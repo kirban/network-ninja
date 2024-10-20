@@ -1,0 +1,37 @@
+app:
+  version: "0.0.1"
+  ping_interval: 1s
+  log_level: trace # trace, info, warn, error
+  max_concurrent_pings: 5
+
+resources:
+  - name: "Google DNS"
+    address: "8.8.8.8"
+    enabled: true
+    timeout: 2s
+    retries: 3
+  - name: "Cloudflare DNS"
+    address: "1.1.1.1"
+    enabled: true
+    timeout: 2s
+    retries: 3
+  - name: "Local Router"
+    address: "192.168.1.1"
+    enabled: true
+    timeout: 1s
+    retries: 2
+
+alerts:
+  enabled: false
+
+logs:
+  enabled: false
+
+grafana:
+  dashboards_enabled: true
+  alerts_enabled: true
+  thresholds:
+    latency_warning: 100ms  # Пороговое значение задержки для предупреждения
+    latency_critical: 500ms  # Пороговое значение задержки для критического состояния
+    packet_loss_warning: 5   # Пороговое значение потерь пакетов для предупреждения (в %)
+    packet_loss_critical: 20  # Пороговое значение потерь пакетов для критического состояния (в %)

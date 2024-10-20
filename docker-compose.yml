@@ -1,0 +1,31 @@
+version: '3'
+services:
+  n-ninja-mongodb:
+    image: mongo
+    container_name: n-ninja-mongodb
+    command: mongod --port 27018
+    restart: always
+    ports:
+      - "27018:27018"
+    volumes:
+      - ./init/mongo/entrypoint.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - mongodb-data:/data/db
+      - mongodb-log:/var/log/mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - n-ninja-network
+
+volumes:
+  mongodb-data:
+    driver: local
+    name: mongodb-data
+  mongodb-log:
+    driver: local
+    name: mongodb-log
+
+networks:
+  n-ninja-network:
+    driver: bridge
+    name: n-ninja-network
