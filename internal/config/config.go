@@ -1,29 +1,28 @@
 package config
 
 import (
-	"os"
 	"log"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	App AppConfig `yaml:"app"`
+	App       AppConfig       `yaml:"app"`
 	Resources []ResourcesList `yaml:"resources"`
-	Alerts AlertsConfig `yaml:"alerts"`
-	Logs LogsConfig `yaml:"logs"`
-	Grafana GrafanaConfig `yaml:"grafana"`
+	Alerts    AlertsConfig    `yaml:"alerts"`
+	Logs      LogsConfig      `yaml:"logs"`
+	Grafana   GrafanaConfig   `yaml:"grafana"`
 }
 
 func (c *Config) Load() *Config {
-	envFile, err := godotenv.Read(".env")
+	path, exists := os.LookupEnv("CONFIG_PATH")
 
-	path := envFile["CONFIG_PATH"]
-
-	if err != nil {
-		log.Printf("Failed to parse env variables: #%v ", err)
+	if !exists {
+		log.Printf("Failed to parse env variables: #%v ", exists)
 	}
+
+	log.Printf("Loading config from path: %s", path)
 
 	configFile, err := os.ReadFile(path)
 
@@ -35,6 +34,7 @@ func (c *Config) Load() *Config {
 	errUnmarshal := yaml.Unmarshal([]byte(configFile), c)
 
 	if errUnmarshal != nil {
+
 		log.Fatalf("Failed to parse config file: #%v ", errUnmarshal)
 	}
 

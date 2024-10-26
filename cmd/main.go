@@ -1,10 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/kirban/network-ninja/internal/config"
 	_ "github.com/kirban/network-ninja/internal/ping"
+	"log"
 )
+
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
 func main() {
 	// 1) read data from config.yaml
