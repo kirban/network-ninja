@@ -1,6 +1,6 @@
 app:
   version: "0.0.1"
-  ping_interval: 1s
+  ping_interval: 1 #in seconds
   log_level: trace # trace, info, warn, error
   max_concurrent_pings: 5
 

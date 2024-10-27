@@ -1,6 +1,7 @@
 package ping
 
 import (
+	"fmt"
 	probing "github.com/prometheus-community/pro-bing"
 	"time"
 )
@@ -12,17 +13,15 @@ type PingResult struct {
 	Latency   time.Duration `json:"latency"`
 }
 
-func SendPing(target string) *PingResult {
-	var pinger, err = probing.NewPinger("www.google.com")
+func SendPing(target string, ping_interval int) *PingResult {
+	var pinger, err = probing.NewPinger(target)
 
 	if err != nil {
 		panic(err)
 	}
 
 	pinger.Count = 3
-	pinger.Interval = 1 * time.Second
-	pinger.Timeout = 10 * time.Second
-	//pinger.TTL =
+	pinger.Interval = time.Duration(ping_interval) * time.Second
 
 	err = pinger.Run()
 
@@ -32,10 +31,17 @@ func SendPing(target string) *PingResult {
 
 	stats := pinger.Statistics()
 
-	return &PingResult{
+	fmt.Println("sent ", stats.PacketsSent)
+	fmt.Println("recieved ", stats.PacketsRecv)
+
+	result := &PingResult{
 		Resource:  target,
 		Success:   (stats.PacketsSent - stats.PacketsRecv) == 0,
 		Timestamp: time.Now(),
 		Latency:   stats.AvgRtt,
 	}
+
+	fmt.Printf("stats %+v\n", stats)
+
+	return result
 }

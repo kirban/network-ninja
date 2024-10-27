@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/kirban/network-ninja/internal/config"
+	"github.com/kirban/network-ninja/internal/ping"
 	_ "github.com/kirban/network-ninja/internal/ping"
 	"log"
 )
@@ -15,24 +17,31 @@ func init() {
 }
 
 func main() {
-	// 1) read data from config.yaml
+	PingResults := make(chan ping.PingResult, 100)
 
+	// 1) read data from config.yaml
 	var c config.Config
 
 	c.Load()
 
 	// 2) we need to get ping_interval & max_concurrent_pings
+	ping_interval := c.App.Ping_interval
+	max_concurrent_pings := c.App.Max_concurrent_pings
+	targets := len(c.Resources)
 
-	// 3) in loop:
-	// every N (ping_interval) seconds run K (targets) <= M(max_concurrent_pings) goroutines
-	// if K <= M - run K goroutines
-	// if K > M
-	// например N = 1s, M = 5, K = 10
-	//		numChunks = K / M
-	//		timeBetweenChunks = N / numChunks
-	// N = 1s, M = 5, K = 23
-	//		numChunks = 23 / 5 = 4.6 = 5
-	//		timeBetweenChunks = 1 / 5 = 0.2s
+	// run send ping goroutine for each target
+	for _, target := range c.Resources {
+		go ping.SendPing(target.Address, target.Timeout)
+	}
+
+	for {
+		select {
+		case result := <-PingResults:
+			// process result
+			//ProcessPingResult(result, db, metricsExporter, config.Alerts)
+			fmt.Printf("PingResult %+v", result)
+		}
+	}
 
 	// 4) save to storage
 
